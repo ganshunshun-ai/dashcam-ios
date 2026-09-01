@@ -4,7 +4,8 @@ on:
 
 jobs:
   build_ipa:
-    runs-on: macos‑latest
+    runs-on: macos-latest
+    timeout-minutes: 45
     steps:
       - name: 拉取仓库全部源码
         uses: actions/checkout@v4
@@ -24,13 +25,13 @@ jobs:
           -archivePath build/dashcam.xcarchive \
           -exportPath build/output \
           -exportOptionsPlist <(echo '{
-            "method":"development",
-            "signingStyle":"manual",
-            "compileBitcode":false
+              "method":"development",
+              "signingStyle":"manual",
+              "compileBitcode":false
           }')
 
       - name: 上传编译好的IPA作为下载产物
-        uses: actions/upload‑artifact@v4
+        uses: actions/upload-artifact@v4
         with:
-          name: dashcam‑unsigned‑ipa
+          name: dashcam-ipa
           path: build/output/*.ipa
