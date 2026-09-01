@@ -1,6 +1,6 @@
 name: Build DashCam iOS IPA
 on:
-  workflow_dispatch: # 手动点击运行编译（白嫖云Mac）
+  workflow_dispatch:
 
 jobs:
   build_ipa:
@@ -10,7 +10,7 @@ jobs:
       - name: 拉取仓库全部源码
         uses: actions/checkout@v4
 
-      - name: 编译项目（不签名，生成未签名IPA）
+      - name: Xcode Archive归档
         run: |
           xcodebuild archive \
           -project dashcam.xcodeproj \
@@ -21,17 +21,15 @@ jobs:
           CODE_SIGNING_REQUIRED=NO \
           CODE_SIGNING_ALLOWED=NO
 
-          xcodebuild -exportArchive \
-          -archivePath build/dashcam.xcarchive \
-          -exportPath build/output \
-          -exportOptionsPlist <(echo '{
-              "method":"development",
-              "signingStyle":"manual",
-              "compileBitcode":false
-          }')
+      - name: 手动打包生成IPA
+        run: |
+          mkdir -p build/output/Payload
+          cp -r build/dashcam.xcarchive/Products/Applications/*.app build/output/Payload/
+          cd build/output
+          zip -r dashcam.ipa Payload
 
-      - name: 上传编译好的IPA作为下载产物
+      - name: 上传IPA产物
         uses: actions/upload-artifact@v4
         with:
           name: dashcam-ipa
-          path: build/output/*.ipa
+          path: build/output/dashcam.ipa
